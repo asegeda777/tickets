@@ -1,0 +1,16 @@
+import PyPDF2
+from PyPDF2 import PdfReader
+from PyPDF2 import PdfWriter as w
+import os
+import glob
+os.chdir('C:\\users\\Пользователь\\Downloads\\билеты\\')
+listing = glob.glob(os.getcwd()+'/Ticket*')
+for ticketFile in listing:
+    r=PdfReader(ticketFile)
+    p=r.pages[0]
+    str=p.extract_text()
+    station_from=str[str.find("ОТ")+2]
+    station_to=str[str.find("ДО")+2]
+    date=str[str.find("ДАТАПРОЕЗДА ")+12:str.find("ДАТАПРОЕЗДА ")+17].replace('.','-')
+    os.rename(ticketFile, date+' '+station_from+'-'+station_to+'.pdf')
+    
