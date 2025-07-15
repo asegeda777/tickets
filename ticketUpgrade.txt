@@ -1,0 +1,10 @@
+from PyPDF2 import PdfWriter
+import sys
+
+merger = PdfWriter()
+
+for pdf in [sys.argv[1] + ".pdf", sys.argv[2] + ".pdf"]:
+    merger.append(pdf)
+
+merger.write(sys.argv[3] + ".pdf")
+merger.close()
