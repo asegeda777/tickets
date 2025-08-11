@@ -1,17 +1,37 @@
 import PyPDF2
 from PyPDF2 import PdfReader
-from PyPDF2 import PdfWriter as w
+from PyPDF2 import PdfWriter
+import sys
 import os
 import glob
-listing = glob.glob(os.getcwd()+'/[0-9][0-9]-[0-9][0-9] [ЭС]-[ЭС].pdf')
+os.chdir('C:\\Users\\Пользователь\\Downloads\\')
+stationNeeded = sys.argv[1]
+print(stationNeeded)
+listing = glob.glob(os.getcwd()+'/Tickets_*')
 dict=dict(list())
 for ticketFile in listing:
 	r=PdfReader(ticketFile)
-	p=r.pages[0]
-	str=p.extract_text()
-	date=str[str.find("ДАТАПРОЕЗДА ")+12:str.find("ДАТАПРОЕЗДА ")+22]
-	if date in dict:
-		dict[date] = [dict[date], ticketFile]
+	if len(r.pages) == 1:
+		p=r.pages[0]
+		str=p.extract_text()
+		date=str[str.find("ДАТАПРОЕЗДА ")+12:str.find("ДАТАПРОЕЗДА ")+22]
+		if date in dict:
+			dict[date] = [dict[date], ticketFile]
+		else:
+			dict[date] = ticketFile
+for dateVal in dict:
+	r = PdfReader(dict[dateVal][0])
+	tmpString = r.pages[0].extract_text()
+	stationFrom = tmpString.split('\n')[10][2:]
+	stationTo = tmpString.split('\n')[11][2:]
+	merger = PdfWriter()
+	if stationFrom == stationNeeded:
+		for pdf in [dict[dateVal][0], dict[dateVal][1]]:
+			merger.append(pdf)
 	else:
-		dict[date] = ticketFile
-print(dict)
+		for pdf in [dict[dateVal][1], dict[dateVal][0]]:
+			merger.append(pdf)
+	merger.write(dateVal + '.pdf')
+	merger.close()
+	os.remove(dict[dateVal][0])
+	os.remove(dict[dateVal][1])
